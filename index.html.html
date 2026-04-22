@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InstaChef — Recipe from Food Image</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a6b3a;
+    --green-light: #e8f5ee;
+    --green-mid: #2d9653;
+    --accent: #f5a623;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --bg: #fafaf8;
+    --white: #ffffff;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(26,107,58,0.10);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 2.5rem; background: var(--white);
+    border-bottom: 1px solid #e8f5ee; position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 700; color: var(--green); display: flex; align-items: center; gap: 8px; }
+  .logo-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; display: inline-block; }
+  nav ul { display: flex; gap: 2rem; list-style: none; }
+  nav ul a { text-decoration: none; color: var(--muted); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+  nav ul a:hover, nav ul a.active { color: var(--green); }
+  .nav-btn { background: var(--green); color: white; border: none; padding: 0.6rem 1.4rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+  .nav-btn:hover { background: var(--green-mid); }
+
+  /* PAGES */
+  .page { display: none; animation: fadeIn 0.4s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* HOME PAGE */
+  .hero {
+    padding: 5rem 2.5rem 3rem;
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+  }
+  .hero-tag { background: var(--green-light); color: var(--green); font-size: 0.8rem; font-weight: 500; padding: 0.35rem 0.9rem; border-radius: 50px; display: inline-block; margin-bottom: 1.2rem; letter-spacing: 0.04em; }
+  .hero h1 { font-family: 'Fraunces', serif; font-size: 3.2rem; font-weight: 700; line-height: 1.15; color: var(--text); margin-bottom: 1.2rem; }
+  .hero h1 em { color: var(--green); font-style: italic; }
+  .hero p { color: var(--muted); font-size: 1.05rem; line-height: 1.7; margin-bottom: 2rem; }
+  .hero-btns { display: flex; gap: 1rem; align-items: center; }
+  .btn-primary { background: var(--green); color: white; border: none; padding: 0.85rem 2rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); }
+  .btn-secondary { background: none; color: var(--green); border: 1.5px solid var(--green); padding: 0.85rem 2rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .btn-secondary:hover { background: var(--green-light); }
+
+  .hero-visual {
+    background: var(--green-light); border-radius: 24px; padding: 2rem;
+    display: flex; flex-direction: column; gap: 1rem; position: relative; overflow: hidden;
+  }
+  .hero-visual::before {
+    content: ''; position: absolute; top: -40px; right: -40px;
+    width: 180px; height: 180px; background: var(--accent); opacity: 0.12; border-radius: 50%;
+  }
+  .food-card {
+    background: white; border-radius: 14px; padding: 1rem 1.2rem;
+    display: flex; align-items: center; gap: 1rem; box-shadow: var(--shadow);
+  }
+  .food-emoji { font-size: 2rem; width: 52px; height: 52px; background: var(--green-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .food-info h4 { font-size: 0.95rem; font-weight: 500; margin-bottom: 2px; }
+  .food-info p { font-size: 0.78rem; color: var(--muted); }
+  .food-badge { margin-left: auto; background: var(--green-light); color: var(--green); font-size: 0.7rem; font-weight: 500; padding: 0.25rem 0.6rem; border-radius: 50px; }
+
+  /* STATS */
+  .stats { background: var(--green); padding: 3rem 2.5rem; }
+  .stats-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; text-align: center; }
+  .stat-num { font-family: 'Fraunces', serif; font-size: 2.8rem; font-weight: 700; color: white; }
+  .stat-label { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 4px; }
+
+  /* HOW IT WORKS */
+  .how { padding: 5rem 2.5rem; max-width: 1100px; margin: 0 auto; }
+  .section-label { text-align: center; color: var(--green); font-size: 0.8rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.8rem; }
+  .section-title { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 700; text-align: center; margin-bottom: 3rem; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .step { text-align: center; padding: 2rem 1.5rem; background: white; border-radius: var(--radius); border: 1px solid #e8f5ee; }
+  .step-num { width: 48px; height: 48px; background: var(--green-light); color: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 700; margin: 0 auto 1.2rem; }
+  .step h3 { font-size: 1rem; font-weight: 500; margin-bottom: 0.6rem; }
+  .step p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* SCAN PAGE */
+  .scan-page { max-width: 780px; margin: 0 auto; padding: 3rem 2rem; }
+  .scan-header { text-align: center; margin-bottom: 2.5rem; }
+  .scan-header h2 { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .scan-header p { color: var(--muted); font-size: 0.95rem; }
+
+  .upload-zone {
+    border: 2px dashed #b8ddc8; border-radius: var(--radius);
+    padding: 3rem 2rem; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: white; position: relative; overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--green); background: var(--green-light); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { width: 64px; height: 64px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+  .upload-icon svg { width: 28px; height: 28px; stroke: var(--green); fill: none; stroke-width: 1.8; }
+  .upload-zone h3 { font-size: 1.1rem; font-weight: 500; margin-bottom: 0.4rem; }
+  .upload-zone p { color: var(--muted); font-size: 0.88rem; }
+  .upload-zone .or { margin: 1rem 0; color: var(--muted); font-size: 0.85rem; }
+
+  #preview-container { display: none; margin-bottom: 1.5rem; text-align: center; }
+  #preview-img { max-width: 100%; max-height: 300px; border-radius: var(--radius); object-fit: cover; box-shadow: var(--shadow); }
+  .preview-actions { display: flex; gap: 0.8rem; justify-content: center; margin-top: 1rem; }
+  .btn-scan { background: var(--green); color: white; border: none; padding: 0.9rem 2.5rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.2s; width: 100%; }
+  .btn-scan:hover { background: var(--green-mid); }
+  .btn-scan:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-clear { background: none; color: var(--muted); border: 1px solid #e0e0e0; padding: 0.9rem 1.5rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 1rem; cursor: pointer; }
+
+  /* Loading */
+  .loading { display: none; text-align: center; padding: 2rem; }
+  .spinner { width: 44px; height: 44px; border: 3px solid var(--green-light); border-top: 3px solid var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { color: var(--muted); font-size: 0.9rem; }
+
+  /* RESULT PAGE */
+  .result-page { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+  .result-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+  .back-btn { background: none; border: 1px solid #e0e0e0; padding: 0.5rem 1rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; color: var(--muted); transition: all 0.2s; }
+  .back-btn:hover { border-color: var(--green); color: var(--green); }
+  .result-title { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 700; }
+
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .result-image { border-radius: var(--radius); overflow: hidden; }
+  .result-image img { width: 100%; height: 280px; object-fit: cover; }
+  .dish-name-card { background: var(--green); color: white; padding: 1.2rem 1.5rem; border-radius: var(--radius); }
+  .dish-name-card .label { font-size: 0.78rem; opacity: 0.8; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .dish-name-card h2 { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700; }
+
+  .ingredients-card, .instructions-card {
+    background: white; border-radius: var(--radius); padding: 1.5rem;
+    border: 1px solid #e8f5ee;
+  }
+  .card-title { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--green); margin-bottom: 1rem; }
+  .ingredient-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .ingredient-list li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.92rem; }
+  .ingredient-list li::before { content: ''; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
+  .instruction-list { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; }
+  .instruction-list li { display: flex; gap: 0.9rem; font-size: 0.92rem; line-height: 1.6; }
+  .step-badge { background: var(--green-light); color: var(--green); font-size: 0.78rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 6px; flex-shrink: 0; height: fit-content; margin-top: 2px; }
+
+  .result-full { grid-column: 1 / -1; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid #e8f5ee; margin-top: 4rem; }
+  footer span { color: var(--green); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="logo-dot"></span> InstaChef</div>
+  <ul>
+    <li><a href="#" class="active" onclick="showPage('home', this)">Home</a></li>
+    <li><a href="#" onclick="showPage('scan', this)">Scan Dish</a></li>
+    <li><a href="#" onclick="showPage('result', this)">Result</a></li>
+  </ul>
+  <button class="nav-btn" onclick="showPage('scan', null)">Try Now</button>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-content">
+      <span class="hero-tag">AI-Powered Recipe Generation</span>
+      <h1>Snap a dish,<br>get the <em>recipe</em><br>instantly.</h1>
+      <p>Upload any food photo and our deep learning model identifies the dish and generates a complete recipe — ingredients, steps, everything.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showPage('scan', null)">Scan Your Food</button>
+        <button class="btn-secondary" onclick="showPage('scan', null)">See How It Works</button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="food-card">
+        <div class="food-emoji">🍔</div>
+        <div class="food-info"><h4>Cheeseburger</h4><p>8 ingredients identified</p></div>
+        <span class="food-badge">94% match</span>
+      </div>
+      <div class="food-card">
+        <div class="food-emoji">🍕</div>
+        <div class="food-info"><h4>Margherita Pizza</h4><p>6 ingredients identified</p></div>
+        <span class="food-badge">97% match</span>
+      </div>
+      <div class="food-card">
+        <div class="food-emoji">🍛</div>
+        <div class="food-info"><h4>Butter Chicken</h4><p>12 ingredients identified</p></div>
+        <span class="food-badge">91% match</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stats-inner">
+      <div><div class="stat-num">101</div><div class="stat-label">Food categories recognised</div></div>
+      <div><div class="stat-num">1M+</div><div class="stat-label">Recipes in training dataset</div></div>
+      <div><div class="stat-num">~2s</div><div class="stat-label">Average prediction time</div></div>
+    </div>
+  </div>
+
+  <div class="how">
+    <div class="section-label">How it works</div>
+    <div class="section-title">Three steps to your recipe</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Upload a photo</h3>
+        <p>Take a picture of any dish or upload one from your gallery.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>AI analyses it</h3>
+        <p>Our CNN model identifies the dish and extracts ingredients using inverse cooking.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Get the recipe</h3>
+        <p>Receive the full recipe with ingredients and step-by-step instructions instantly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN PAGE -->
+<div id="page-scan" class="page">
+  <div class="scan-page">
+    <div class="scan-header">
+      <h2>Scan Your Dish</h2>
+      <p>Upload a clear photo of any food item to generate its recipe</p>
+    </div>
+
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" id="file-input" accept="image/*" onchange="handleFile(this.files[0])">
+      <div class="upload-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <h3>Drop your food photo here</h3>
+      <p>or click to browse from your device</p>
+      <div class="or">Supports JPG, PNG, WEBP</div>
+    </div>
+
+    <div id="preview-container">
+      <img id="preview-img" src="" alt="Food preview">
+      <div class="preview-actions">
+        <button class="btn-clear" onclick="clearImage()">Clear</button>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Analysing your dish with AI...</p>
+    </div>
+
+    <button class="btn-scan" id="scan-btn" onclick="scanDish()" disabled>Generate Recipe</button>
+  </div>
+</div>
+
+<!-- RESULT PAGE -->
+<div id="page-result" class="page">
+  <div class="result-page">
+    <div class="result-header">
+      <button class="back-btn" onclick="showPage('scan', null)">← Back</button>
+      <h1 class="result-title" id="result-title">Your Recipe</h1>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-image">
+        <img id="result-img" src="" alt="Food">
+      </div>
+      <div class="dish-name-card">
+        <div class="label">Identified dish</div>
+        <h2 id="dish-name">—</h2>
+        <p style="margin-top:0.8rem;opacity:0.8;font-size:0.88rem;">Generated using inverse cooking neural network</p>
+      </div>
+      <div class="ingredients-card">
+        <div class="card-title">Ingredients</div>
+        <ul class="ingredient-list" id="ingredients-list"></ul>
+      </div>
+      <div class="instructions-card result-full">
+        <div class="card-title">Instructions</div>
+        <ol class="instruction-list" id="instructions-list"></ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Built with deep learning · <span>InstaChef</span> · B.Tech Final Year Project
+</footer>
+
+<script>
+  const BACKEND = "https://oisheebanerjee08-instachef-backend.hf.space";
+  let selectedFile = null;
+
+  function showPage(name, linkEl) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelectorAll('nav ul a').forEach(a => a.classList.remove('active'));
+    if (linkEl) linkEl.classList.add('active');
+  }
+
+  function handleFile(file) {
+    if (!file) return;
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('preview-img').src = e.target.result;
+      document.getElementById('result-img').src = e.target.result;
+      document.getElementById('preview-container').style.display = 'block';
+      document.getElementById('upload-zone').style.display = 'none';
+      document.getElementById('scan-btn').disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearImage() {
+    selectedFile = null;
+    document.getElementById('preview-container').style.display = 'none';
+    document.getElementById('upload-zone').style.display = 'block';
+    document.getElementById('scan-btn').disabled = true;
+    document.getElementById('file-input').value = '';
+  }
+
+  async function scanDish() {
+    if (!selectedFile) return;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('scan-btn').disabled = true;
+
+    try {
+      // Call Hugging Face Gradio backend
+      const toBase64 = f => new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(',')[1]);
+        r.onerror = rej;
+        r.readAsDataURL(f);
+      });
+
+      const b64 = await toBase64(selectedFile);
+
+      const response = await fetch(BACKEND + "/run/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: ["data:image/jpeg;base64," + b64] })
+      });
+
+      const result = await response.json();
+      const [title, ingredients, instructions] = result.data;
+
+      // Populate result page
+      document.getElementById('dish-name').textContent = title;
+      document.getElementById('result-title').textContent = title;
+
+      const ingList = document.getElementById('ingredients-list');
+      ingList.innerHTML = '';
+      ingredients.split('\n').forEach(ing => {
+        if (ing.trim()) {
+          const li = document.createElement('li');
+          li.textContent = ing.replace('•', '').trim();
+          ingList.appendChild(li);
+        }
+      });
+
+      const insList = document.getElementById('instructions-list');
+      insList.innerHTML = '';
+      instructions.split('\n').forEach((step, i) => {
+        if (step.trim()) {
+          const li = document.createElement('li');
+          const badge = document.createElement('span');
+          badge.className = 'step-badge';
+          badge.textContent = i + 1;
+          const text = document.createElement('span');
+          text.textContent = step.replace(/^\d+\.\s*/, '').trim();
+          li.appendChild(badge);
+          li.appendChild(text);
+          insList.appendChild(li);
+        }
+      });
+
+      document.getElementById('loading').style.display = 'none';
+      showPage('result', null);
+
+    } catch (err) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('scan-btn').disabled = false;
+      alert('Error: ' + err.message + '\n\nMake sure the backend is running.');
+    }
+  }
+
+  // Drag and drop
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    handleFile(e.dataTransfer.files[0]);
+  });
+</script>
+</body>
+</html>
