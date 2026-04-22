@@ -146,12 +146,7 @@ This project required several patches to run on modern PyTorch 2.6+:
 
 ## 👥 Team
 
-| Name | Role |
-|------|------|
-| Oishee Banerjee | Model integration, deployment, frontend |
-| Deepraj Mukherjee | UI design, frontend development |
-| Anant Thakur | Backend, API integration |
-| Dipanjan Roy | Model fine-tuning, dataset preparation |
+Oishee Banerjee · Deepraj Mukherjee · Anant Thakur · Dipanjan Roy
 
 **Sanaka Educational Trust's Group of Institutions**
 B.Tech — Computer Science & Engineering · 2025–26
