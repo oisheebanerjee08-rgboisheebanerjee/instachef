@@ -148,5 +148,4 @@ This project required several patches to run on modern PyTorch 2.6+:
 
 Oishee Banerjee · Deepraj Mukherjee · Anant Thakur · Dipanjan Roy
 
-**Sanaka Educational Trust's Group of Institutions**
 B.Tech — Computer Science & Engineering · 2025–26
